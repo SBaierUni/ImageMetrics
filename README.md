@@ -26,7 +26,7 @@ Python Sewar Library
 ```
 + supported formats: png, jpg, jp
 
-| Metric  | Best	| Direction	  | Steps 		|
+| Metric  | Optimal	| Worse 	  | Stepsize	|
 |:-------:|:-------:|:-----------:|:-----------:|
 | MSE	  |	0		| higher	  | normal 		|
 | RSME 	  | 0		| higher	  | normal 		|

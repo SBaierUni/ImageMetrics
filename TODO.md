@@ -1,3 +1,5 @@
+# TODO
+
 ImageCompression:
 + BinarySearch not working correctly (all formats)
 + BPG range changed from 0..9 to 0..51
