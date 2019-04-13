@@ -6,53 +6,59 @@ from sewar.full_ref import *
 
 def getMetric(metric):
 	if metric == "mse":
-		score = mse(src, comp)
+		score = mse(img_src, img_comp)
 	elif metric == "rmse":
-		score = rmse(src, comp)
+		score = rmse(img_src, img_comp)
 	elif metric == "psnr":
-		score = psnr(src, comp)
+		score = psnr(img_src, img_comp)
 	elif metric == "rmse_sw":
-		score = rmse_sw(src, comp)
+		score = rmse_sw(img_src, img_comp)
 	elif metric == "uqi":
-		score = uqi(src, comp)
+		score = uqi(img_src, img_comp)
 	elif metric == "ssim":
-		score = ssim(src, comp)
+		score = ssim(img_src, img_comp)
 	elif metric == "ergas":
-		score = ergas(src, comp)
+		score = ergas(img_src, img_comp)
 	elif metric == "scc":
-		score = scc(src, comp)
+		score = scc(img_src, img_comp)
 	elif metric == "rase":
-		score = rase(src, comp)
+		score = rase(img_src, img_comp)
 	elif metric == "sam":
-		score = sam(src, comp)
+		score = sam(img_src, img_comp)
 	elif metric == "msssim":
-		score = msssim(src, comp)
+		score = msssim(img_src, img_comp)
 	elif metric == "vifp":
-		score = vifp(src, comp)
+		score = vifp(img_src, img_comp)
 	else:
 		print("Metric ", metric, " is NOT supported")
 	return score
+
 
 def getFilename(path):
 	return os.path.basename(path)[:-4]
 
 
-if len(sys.argv) < 4:
+def printUsage():
 	print("correct usage:      python metrics.py -[metric] referenceFile1 compareFile2\n\n"
         	"supported formats:  png, jpg, jp2 (not jxr, bpg)\n"
         	"supported metrics:  mse, rmse, psnr, rmse_sw, uqi, ssim, ergas, \n"
-        	"\t\t    scc, rase, sam, msssim, vifp");
+        	"\t\t    scc, rase, sam, msssim, vifp")
+
+
+if len(sys.argv) < 4:
+	printUsage()
 else:
 	f = open('scores.txt', 'w')
 	metric = sys.argv[1][1:]
-	src = cv2.imread(sys.argv[2])  # reference image
+	img_src = cv2.imread(sys.argv[2])  # reference image
 	sys.argv[2] = getFilename(sys.argv[2])
 
 	for x in range(3, len(sys.argv)):
-		comp = cv2.imread(sys.argv[x],1)  # image to compare
+		img_comp = cv2.imread(sys.argv[x],1)  # image to compare
 		sys.argv[x] = getFilename(sys.argv[x])
-		tmp_score = getMetric(metric)
-		out = "\n{} -> {}\n{}:\t{}".format(sys.argv[2], sys.argv[x], metric.upper(),tmp_score)
+		out_score = getMetric(metric)
+
+		out = "\n{} -> {}\n{}:\t{}".format(sys.argv[2], sys.argv[x], metric.upper(),out_score)
 		print(out)
 		f.write(out)
 
