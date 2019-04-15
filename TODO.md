@@ -6,7 +6,10 @@ ImageCompression:
 + Path instead of imageList.txt
 	- Load all files from given folder
 	- Store all files into given folder
-+ Terminal output text for bpg wrong
+? Should -p delete the source files
+? Terminal output text for bpg wrong, changed from 0->51 to 51->0
+? Support decimal digits in filename
+? Is compRatio for all images the same quality setting?
 
 ImageDatabase:
 + png, lossless
