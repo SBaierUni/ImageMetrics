@@ -23,18 +23,23 @@ std::ofstream& ReportFile(bool initialized = true) {
 	return ret;
 }
 
-bool fetchImageList(std::vector<std::string>& imageFilenameList) {
+void throwErrorAndExit(const std::string& errorMessage) {
+	std::cout << errorMessage << std::endl;
+	ReportFile() << errorMessage;
+	exit(1);
+}
 
-	std::ifstream imageList_FS("imageList.txt");
-	if(imageList_FS.is_open()) {
-		std::string line;
-		while(getline(imageList_FS, line))
-			imageFilenameList.push_back(line);
-		imageList_FS.close();
-	} else
-		return false;
-	
-	return true;
+void printUsageAndExit(){
+	fputs("usage: ./ImageConverter [options ...] inputFiles.png\n\nOptions:\n"
+        	"-p  \t\tcompress and convert into png format\n"
+        	"-f  format\tall(default), jpg, jp2, jxr, bpg\n"
+        	"-c  compRatio\tcompression ratio >= 1.0\n"
+        	"-s  size [kB]\ttarget size for compressed files\n", stderr);
+	exit(1);
+}
+
+std::string base_name(std::string const & path) {
+  return path.substr(path.find_last_of("/\\") + 1);
 }
 
 size_t getFileSize(const std::string& filename) {
@@ -61,7 +66,7 @@ std::string getEncodingCommand(const uint32_t format, const std::string& sourceP
 
 	switch(format) {
 		case FORMAT_JPG: return std::string("./nconvert -quiet -o " + outputPath + " -out jpeg -q " + std::to_string(quality) + " " + sourcePath);
-		case FORMAT_JXR: return std::string("./nconvert -quiet -o " + outputPath + " -out jxr -q " + std::to_string(quality) + " " + sourcePath); // what is this?    + " > /dev/null 2>&1";
+		case FORMAT_JXR: return std::string("./nconvert -quiet -o " + outputPath + " -out jxr -q " + std::to_string(quality) + " " + sourcePath);
 		case FORMAT_JP2: return std::string("convert -quiet " + sourcePath + " -quality " + std::to_string(quality) + " " + outputPath);
 		// BPG quality was calculated inverse
 		case FORMAT_BPG: return std::string("bpgenc -q " + std::to_string(51 - quality) + " " + sourcePath + " -o " + outputPath);
@@ -76,7 +81,7 @@ std::string getDecodingCommand(const std::string& sourcePath, const std::string&
 	targetFilename = targetFilename + "_" + formatString + ".png";
 
 	switch(format) {
-		case FORMAT_JPG: // do skip to JXR
+		case FORMAT_JPG: // skip to JXR
 		case FORMAT_JXR: return std::string("./nconvert -quiet -o " + targetFilename + " -out png " + sourcePath);
 		case FORMAT_JP2: return std::string("convert -quiet " + sourcePath + " " + targetFilename);
 		case FORMAT_BPG: return std::string("bpgdec " + sourcePath + " -o " + targetFilename);
@@ -92,10 +97,8 @@ uint32_t binarySearchConvert(const std::string& sourceFilename, const std::strin
 
 	size_t currFilesize = getFileSize(targetFilename);
 
-	// TODO why using ifdef?
-//#ifdef LOG_BINSEARCH
-	std::cout << "Converting " << sourceFilename << " to format " << translateFormatToString(format) <<" with quality: " << currQual << ". Current filesize is: " << currFilesize << std::endl;
-//#endif
+	//std::cout << "\b->" << std::flush;
+	std::cout << "\b=D" << std::flush;
 	
 	system(std::string("rm -rf " + targetFilename).c_str());
 	system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
@@ -106,7 +109,8 @@ uint32_t binarySearchConvert(const std::string& sourceFilename, const std::strin
 	currFilesize = getFileSize(targetFilename);
 
 	if(currFilesize == targetFilesize) return currQual;
-	else return binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, y, (currFilesize > targetFilesize) ? currQual - x : currQual + x);
+
+	return binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, y, (currFilesize > targetFilesize) ? currQual - x : currQual + x);
 }
 
 uint32_t linearSearch(const std::string& sourceFilename, const std::string& targetFilename, const size_t targetFilesize, const uint32_t format, int currQual) {
@@ -119,7 +123,8 @@ uint32_t linearSearch(const std::string& sourceFilename, const std::string& targ
 		if (currQual > 100 || format == FORMAT_BPG && currQual > 51)
 			return currQual - 1;
 
-		std::cout << "Converting " << sourceFilename << " to format " << translateFormatToString(format) <<" with quality: " << currQual << ". Current filesize is: " << currFilesize << std::endl;
+		//std::cout << "\b->" << std::flush;
+		std::cout << "\b=D" << std::flush;
 
 		system(std::string("rm -rf " + targetFilename).c_str());
 		system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
@@ -132,64 +137,46 @@ uint32_t linearSearch(const std::string& sourceFilename, const std::string& targ
 		if (currQual < 0)
 			return currQual + 1;
 
-		std::cout << "Converting " << sourceFilename << " to format " << translateFormatToString(format) <<" with quality: " << currQual << ". Current filesize is: " << currFilesize << std::endl;
+		//std::cout << "\b->" << std::flush;
+		std::cout << "\b=D" << std::flush;
 
 		system(std::string("rm -rf " + targetFilename).c_str());
 		system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
 
 		currFilesize = getFileSize(targetFilename);
 	}
-	
+	std::cout << "\nConverting " << sourceFilename << " to format " << translateFormatToString(format) <<" with quality: " << currQual << ". Current filesize is: " << currFilesize << std::endl;
+
    	return currQual;
 }
 
 void convertImage(const std::string& sourceFilename, const std::string& outputDirectory, const size_t targetFilesize, const float compRate, const uint32_t format, const uint32_t outInPNG) {
 
 	// Source image must be png to ensure losslessness
-	if(std::string(sourceFilename.end() - 3, sourceFilename.end()) != "png") {
-		ReportFile() << "ERROR: Source file must be .png!\n";
-		return;
-	}
+	if(std::string(sourceFilename.end() - 3, sourceFilename.end()) != "png")
+		throwErrorAndExit("ERROR: Source file must be .png!\n");
 	
-	// TODO change to format name_compRate.png
 	// TODO not supporting decimal digits
-	std::string targetFilename = std::string(sourceFilename.begin(), sourceFilename.end() - 4);
+	std::string targetFilename = base_name(std::string(sourceFilename.begin(), sourceFilename.end() - 4));
 	std::string compRatioString = std::to_string((int)compRate);
 	targetFilename = outputDirectory + targetFilename + "_" + compRatioString;
 	
-	uint32_t qual;
+	uint32_t qual = 100;
 
-	switch(format) {
-			
-		case FORMAT_JPG: {
-			qual = 100;
-			targetFilename += ".jpg";
-		} break;
-			
-		case FORMAT_JP2: {
-			qual = 100;
-			targetFilename += ".jp2";
-		} break;
-			
-		case FORMAT_JXR:{
-			qual = 100;
-			targetFilename += ".jxr";
-		} break;
-		
-		case FORMAT_BPG: {
-			qual = 51;
-			targetFilename += ".bpg";
-		} break;
-			
-		default: {
-			ReportFile() << "ERROR: Unknown output format specified!\n";
-			return;
-		}
-	}
+	if(format == FORMAT_JPG) targetFilename += ".jpg";
+	else if(format == FORMAT_JP2) targetFilename += ".jp2";
+	else if(format == FORMAT_JXR) targetFilename += ".jxr";
+	else if(format == FORMAT_BPG) {
+		qual = 51;
+		targetFilename += ".bpg";
+	} else throwErrorAndExit("ERROR: Unknown output format specified!\n");
 
+	//std::cout << ">>>" << std::flush;
+	std::cout << "BB" << std::flush;
 	uint32_t tmpQual = binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, (format == FORMAT_BPG) ? 13 : 25, (format == FORMAT_BPG) ? 26 : 50);
 	uint32_t finalQual = linearSearch(sourceFilename, targetFilename, targetFilesize, format, tmpQual);
 
+	// delete compressed images and convert to png
 	if(outInPNG == 1) {
 		system(getDecodingCommand(targetFilename, outputDirectory, format).c_str());
 		system(std::string("rm -rf " + targetFilename).c_str());
@@ -200,16 +187,12 @@ void convertImage(const std::string& sourceFilename, const std::string& outputDi
 
 void convertImageToRatio(const uint32_t format, const float targetRatio, const size_t targetSize, const uint32_t outInPNG, const std::string& imageFilename) {
 	
-	if(targetRatio < 1.0f) {
-		ReportFile() << "ERROR: Target ratio of " << imageFilename << " is < 1.0\n";
-		return;
-	}
+	if(targetRatio < 1.0f)
+		throwErrorAndExit("ERROR: Target ratio of " + imageFilename + " is < 1.0\n");
 	
 	size_t originalImageSize = getFileSize(imageFilename);
-	if(originalImageSize == 0) {
-		ReportFile() << "ERROR: Image \"" << imageFilename << "\" either does not exist or is empty!\n";
-		return;
-	}
+	if(originalImageSize == 0)
+		throwErrorAndExit("ERROR: Image \"" + imageFilename + "\" either does not exist or is empty!\n");
 	
 	size_t targetImageSize = targetSize;
 
@@ -227,24 +210,12 @@ void convertImageToRatio(const uint32_t format, const float targetRatio, const s
 
 int main(int argc, char *argv[]) {
 
- 	if (argc < 2) {
-        fputs("usage: ./ImageConverter [options ...]\n\nOptions:\n"
-        	"-a  \t\t convert source into all available formats\n"
-        	"-p  \t\t output into png format\n"
-        	"-f  format\t available formats: jpg, jp2, jxr, bpg\n"
-        	"-c  compRatio\t compression ratio >= 1.0\n"
-        	"-s  size [kB]\t target size for compressed files in kB\n", stderr);
-        exit(1);
-    }
-
+ 	if (argc < 2)
+        printUsageAndExit();
 	ReportFile(false);
 	
-	std::vector<std::string> imageFilenameList;
-	
-	if(!fetchImageList(imageFilenameList))
-		ReportFile() << "ERROR: Cannot open image filename list!\n";
-
 	// standard parameter options
+	std::vector<std::string> imageFilenameList;
     uint32_t format = FORMAT_ALL;
     uint32_t outInPNG = 0;
     uint32_t arg_cnt = 1;
@@ -254,24 +225,25 @@ int main(int argc, char *argv[]) {
     while(arg_cnt < argc) {
     	if (strcmp(argv[arg_cnt], "-f") == 0) {
     		arg_cnt++;
-    		if(strcmp(argv[arg_cnt], "jpg") == 0) format = FORMAT_JPG;
+    		if (strcmp(argv[arg_cnt], "all") == 0) format = FORMAT_ALL;
+    		else if(strcmp(argv[arg_cnt], "jpg") == 0) format = FORMAT_JPG;
     		else if (strcmp(argv[arg_cnt], "jp2") == 0) format = FORMAT_JP2;
     		else if (strcmp(argv[arg_cnt], "jxr") == 0) format = FORMAT_JXR;
     		else if (strcmp(argv[arg_cnt], "bpg") == 0) format = FORMAT_BPG;
-    		else ReportFile() << "ERROR: Format not supported!\n";
+    		else throwErrorAndExit("ERROR: Format not supported!\n");
    		} else if(strcmp(argv[arg_cnt], "-p") == 0)
    			outInPNG = 1;
    		else if(strcmp(argv[arg_cnt], "-c") == 0)
    			ratio = std::stof(argv[++arg_cnt]);
    		else if(strcmp(argv[arg_cnt], "-s") == 0)
    			targetSize = (size_t)(std::stoi(argv[++arg_cnt]) * 1000);
+   		else
+			imageFilenameList.push_back(argv[arg_cnt]);
    		arg_cnt++;
 	}
 
-
-	for(auto& e : imageFilenameList) {
+	for(auto& e : imageFilenameList)
 		convertImageToRatio(format, ratio, targetSize, outInPNG, e);
-	}
 
 	ReportFile().close();
 }

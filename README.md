@@ -3,14 +3,23 @@ Multimedia PS
 
 
 ## Image Compression
+### Usage
+
++ add input-image-path to imageList.txt
+
+```
+> ./ImageConverter -a -p -c 10
+```
+
 ### Available Compression Qualities
 
-| Format | Minimal Compression | Maximal Compression  |
+| FORMAT | MINIMAL COMPRESSION | MAXIMAL COMPRESSION  |
 |:------:|:-------------------:|:--------------------:|
 | jpeg   | 100 			       | 0  				  |
 | jxr    | 100     			   | 0  				  |
 | jp2    | 100    		 	   | 0  				  |
 | bpg    | 0   			 	   | 51 				  |
+
 
 ## Image Quality
 ### Dependencies
@@ -24,9 +33,9 @@ Python Sewar Library
 ```
 > python metrics.py -metric res/reference.png res/gaben_bpg_30.png
 ```
-+ supported formats: png, jpg, jp
++ supported formats: png, jpg, jp2
 
-| Metric  | Optimal	| Worse 	  | Stepsize	|
+| METRIC  | BEST	| WORSE 	  | STEPSIZE	|
 |:-------:|:-------:|:-----------:|:-----------:|
 | MSE	  |	0		| higher	  | normal 		|
 | RSME 	  | 0		| higher	  | normal 		|
