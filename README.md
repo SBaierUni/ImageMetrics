@@ -35,17 +35,17 @@ Python Sewar Library
 ```
 + supported formats: png, jpg, jp2
 
-| METRIC  | BEST	| WORSE 	  | STEPSIZE	|
-|:-------:|:-------:|:-----------:|:-----------:|
-| MSE	  |	0		| higher	  | normal 		|
-| RSME 	  | 0		| higher	  | normal 		|
-| PSNR	  | infinite| smaller	  | normal 		|
-| RMSE_SW | 0		| higer		  | normal 		|
-| UQI	  |	1		| smaller	  | normal 		|
-| SSIM	  | 1		| smaller	  | normal 		|
-| ERGAS	  | 0		| higher	  | very big 	|
-| SCC	  |	0.98  	| smaller	  | exponential |
-| RASE	  | 0 		| higher	  | big 		|
-| SAM 	  | 0 		| higher	  | very small 	|
-| MSSSIM  | 1		| lower		  | normal		|
-| VIFP	  | 0.99 	| smaller	  | normal 		|
+| METRIC  | BEST	| WORSE 	  | STEPSIZE	| SPEED  | PREFERED |
+|:-------:|:-------:|:-----------:|:-----------:|:------:|:--------:|
+| MSE	  |	0		| higher	  | normal 		| fast   |     *    |
+| RMSE 	  | 0		| higher	  | normal 		| fast   |     *    |
+| PSNR	  | infinite| smaller	  | normal 		| fast   |     *    |
+| RMSE_SW | 0		| higer		  | normal 		| fast   |          |
+| UQI	  |	1		| smaller	  | normal 		| normal |          |
+| SSIM	  | 1		| smaller	  | normal 		| slow   |          |
+| ERGAS	  | 0		| higher	  | very big 	| normal |     *    |
+| SCC	  |	0.98  	| smaller	  | exponential | slow   |          |
+| RASE	  | 0 		| higher	  | big 		| normal |     *    |
+| SAM 	  | 0 		| higher	  | very small 	| fast   |     *    |
+| MSSSIM  | 1		| smaller	  | normal		| slow   |          |
+| VIFP	  | 0.99 	| smaller	  | normal 		| slow   |          |
