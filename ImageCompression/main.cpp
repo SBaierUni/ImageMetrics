@@ -12,6 +12,18 @@ const uint32_t FORMAT_JP2 = 2;
 const uint32_t FORMAT_JXR = 3;
 const uint32_t FORMAT_BPG = 4;
 
+uint32_t progr = 0;
+void updateProgress() {
+	progr++;
+	if (progr == 1) std::cout << "\b/" << std::flush;
+	else if (progr == 2) std::cout << "\b|" << std::flush;
+	else if (progr == 3) std::cout << "\b\\" << std::flush;
+	else {
+		std::cout << "\b|" << std::flush;
+		progr = 0;
+	}
+}
+
 std::ofstream& ReportFile(bool initialized = true) {
 
 	static std::ofstream ret;
@@ -23,18 +35,22 @@ std::ofstream& ReportFile(bool initialized = true) {
 	return ret;
 }
 
-void throwErrorAndExit(const std::string& errorMessage) {
-	std::cout << errorMessage << std::endl;
-	ReportFile() << errorMessage;
-	exit(1);
-}
-
 void printUsageAndExit(){
 	fputs("usage: ./ImageConverter [options ...] inputFiles.png\n\nOptions:\n"
         	"-p  \t\tcompress and convert into png format\n"
         	"-f  format\tall(default), jpg, jp2, jxr, bpg\n"
         	"-c  compRatio\tcompression ratio >= 1.0\n"
         	"-s  size [kB]\ttarget size for compressed files\n", stderr);
+	exit(1);
+}
+
+void printInformation(const std::string& message) {
+	std::cout << "\bINFO: " << message << std::endl;
+	ReportFile() << message << std::endl;
+}
+
+void throwErrorAndExit(const std::string& errorMessage) {
+	printInformation("\b\b\b\b\b\bERROR: " + errorMessage);
 	exit(1);
 }
 
@@ -54,19 +70,20 @@ size_t getFileSize(const std::string& filename) {
 std::string translateFormatToString(const uint32_t format) {
 
 	switch(format) {
-		case FORMAT_JPG: return std::string("JPEG");
-		case FORMAT_JP2: return std::string("JPEG2000");
-		case FORMAT_JXR: return std::string("JXR");
-		case FORMAT_BPG: return std::string("BPG");
+		case FORMAT_JPG: return std::string("jpeg");
+		case FORMAT_JP2: return std::string("jpeg2000");
+		case FORMAT_JXR: return std::string("jxr");
+		case FORMAT_BPG: return std::string("bpg");
 		default: return std::string("Unknown format");
 	}
 }
 
-std::string getEncodingCommand(const uint32_t format, const std::string& sourcePath, const std::string& outputPath, const uint32_t quality) {
+std::string getEncodingCommand(const uint32_t format, const std::string& sourcePath, 
+	const std::string& outputPath, const uint32_t quality) {
 
 	switch(format) {
-		case FORMAT_JPG: return std::string("./nconvert -quiet -o " + outputPath + " -out jpeg -q " + std::to_string(quality) + " " + sourcePath);
-		case FORMAT_JXR: return std::string("./nconvert -quiet -o " + outputPath + " -out jxr -q " + std::to_string(quality) + " " + sourcePath);
+		case FORMAT_JPG: // skip to JXR
+		case FORMAT_JXR: return std::string("./nconvert -quiet -o " + outputPath + " -out " + translateFormatToString(format) + " -q " + std::to_string(quality) + " " + sourcePath + " > /dev/null 2>&1");
 		case FORMAT_JP2: return std::string("convert -quiet " + sourcePath + " -quality " + std::to_string(quality) + " " + outputPath);
 		// BPG quality was calculated inverse
 		case FORMAT_BPG: return std::string("bpgenc -q " + std::to_string(51 - quality) + " " + sourcePath + " -o " + outputPath);
@@ -74,11 +91,13 @@ std::string getEncodingCommand(const uint32_t format, const std::string& sourceP
 	}
 }
 
-std::string getDecodingCommand(const std::string& sourcePath, const std::string& outputDirectory, const uint32_t format) {
+std::string getDecodingCommand(const std::string& sourcePath, const std::string& outputDirectory, 
+	const uint32_t format) {
 
 	std::string formatString = std::string(sourcePath.end() - 3, sourcePath.end());
 	std::string targetFilename = std::string(sourcePath.begin(), sourcePath.end() - 4);
 	targetFilename = targetFilename + "_" + formatString + ".png";
+	system(std::string("rm -rf " + targetFilename).c_str());
 
 	switch(format) {
 		case FORMAT_JPG: // skip to JXR
@@ -89,7 +108,8 @@ std::string getDecodingCommand(const std::string& sourcePath, const std::string&
 	}
 }
 
-uint32_t binarySearchConvert(const std::string& sourceFilename, const std::string& targetFilename, const size_t targetFilesize, const uint32_t format, uint32_t x, int currQual) {
+uint32_t binarySearchConvert(const std::string& sourceFilename, const std::string& targetFilename, 
+	const size_t targetFilesize, const uint32_t format, uint32_t x, int currQual) {
 
 	if (currQual < 0) currQual = 0;
 	else if (currQual > 100) currQual = 100;
@@ -97,8 +117,7 @@ uint32_t binarySearchConvert(const std::string& sourceFilename, const std::strin
 
 	size_t currFilesize = getFileSize(targetFilename);
 
-	//std::cout << "\b->" << std::flush;
-	std::cout << "\b=D" << std::flush;
+	updateProgress();
 	
 	system(std::string("rm -rf " + targetFilename).c_str());
 	system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
@@ -113,7 +132,8 @@ uint32_t binarySearchConvert(const std::string& sourceFilename, const std::strin
 	return binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, y, (currFilesize > targetFilesize) ? currQual - x : currQual + x);
 }
 
-uint32_t linearSearch(const std::string& sourceFilename, const std::string& targetFilename, const size_t targetFilesize, const uint32_t format, int currQual) {
+uint32_t linearSearch(const std::string& sourceFilename, const std::string& targetFilename, 
+	const size_t targetFilesize, const uint32_t format, int currQual) {
 
 	size_t currFilesize = getFileSize(targetFilename);
 
@@ -123,8 +143,7 @@ uint32_t linearSearch(const std::string& sourceFilename, const std::string& targ
 		if (currQual > 100 || format == FORMAT_BPG && currQual > 51)
 			return currQual - 1;
 
-		//std::cout << "\b->" << std::flush;
-		std::cout << "\b=D" << std::flush;
+		updateProgress();
 
 		system(std::string("rm -rf " + targetFilename).c_str());
 		system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
@@ -137,24 +156,23 @@ uint32_t linearSearch(const std::string& sourceFilename, const std::string& targ
 		if (currQual < 0)
 			return currQual + 1;
 
-		//std::cout << "\b->" << std::flush;
-		std::cout << "\b=D" << std::flush;
+		updateProgress();
 
 		system(std::string("rm -rf " + targetFilename).c_str());
 		system(getEncodingCommand(format, sourceFilename, targetFilename, currQual).c_str());
 
 		currFilesize = getFileSize(targetFilename);
 	}
-	std::cout << "\nConverting " << sourceFilename << " to format " << translateFormatToString(format) <<" with quality: " << currQual << ". Current filesize is: " << currFilesize << std::endl;
 
    	return currQual;
 }
 
-void convertImage(const std::string& sourceFilename, const std::string& outputDirectory, const size_t targetFilesize, const float compRate, const uint32_t format, const uint32_t outInPNG) {
+void convertImage(const std::string& sourceFilename, const std::string& outputDirectory, const size_t targetFilesize, 
+	const float compRate, const uint32_t format, const uint32_t outInPNG) {
 
 	// Source image must be png to ensure losslessness
 	if(std::string(sourceFilename.end() - 3, sourceFilename.end()) != "png")
-		throwErrorAndExit("ERROR: Source file must be .png!\n");
+		throwErrorAndExit("Source file must be .png!\n");
 	
 	// TODO not supporting decimal digits
 	std::string targetFilename = base_name(std::string(sourceFilename.begin(), sourceFilename.end() - 4));
@@ -169,30 +187,29 @@ void convertImage(const std::string& sourceFilename, const std::string& outputDi
 	else if(format == FORMAT_BPG) {
 		qual = 51;
 		targetFilename += ".bpg";
-	} else throwErrorAndExit("ERROR: Unknown output format specified!\n");
+	} else throwErrorAndExit("Unknown output format specified!\n");
 
-	//std::cout << ">>>" << std::flush;
-	std::cout << "BB" << std::flush;
-	uint32_t tmpQual = binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, (format == FORMAT_BPG) ? 13 : 25, (format == FORMAT_BPG) ? 26 : 50);
+	uint32_t tmpQual = binarySearchConvert(sourceFilename, targetFilename, targetFilesize, format, ceil(qual/4), ceil(qual/2));
 	uint32_t finalQual = linearSearch(sourceFilename, targetFilename, targetFilesize, format, tmpQual);
+
+	printInformation("Converted " + sourceFilename +  " to format " + translateFormatToString(format) + ".");
+	printInformation("Quality: " + std::to_string(finalQual) + "/" + std::to_string(qual) + "\t\tFilesize: " + std::to_string(getFileSize(targetFilename)) + "Bytes");
 
 	// delete compressed images and convert to png
 	if(outInPNG == 1) {
 		system(getDecodingCommand(targetFilename, outputDirectory, format).c_str());
 		system(std::string("rm -rf " + targetFilename).c_str());
 	}
-	
-	ReportFile() << "INFO: Converted " << sourceFilename << " with " << translateFormatToString(format) << " and quality value of " << finalQual << ".\n";
 }
 
 void convertImageToRatio(const uint32_t format, const float targetRatio, const size_t targetSize, const uint32_t outInPNG, const std::string& imageFilename) {
 	
 	if(targetRatio < 1.0f)
-		throwErrorAndExit("ERROR: Target ratio of " + imageFilename + " is < 1.0\n");
+		throwErrorAndExit("Target ratio of " + imageFilename + " is < 1.0\n");
 	
 	size_t originalImageSize = getFileSize(imageFilename);
 	if(originalImageSize == 0)
-		throwErrorAndExit("ERROR: Image \"" + imageFilename + "\" either does not exist or is empty!\n");
+		throwErrorAndExit("Image \"" + imageFilename + "\" either does not exist or is empty!\n");
 	
 	size_t targetImageSize = targetSize;
 
@@ -230,7 +247,7 @@ int main(int argc, char *argv[]) {
     		else if (strcmp(argv[arg_cnt], "jp2") == 0) format = FORMAT_JP2;
     		else if (strcmp(argv[arg_cnt], "jxr") == 0) format = FORMAT_JXR;
     		else if (strcmp(argv[arg_cnt], "bpg") == 0) format = FORMAT_BPG;
-    		else throwErrorAndExit("ERROR: Format not supported!\n");
+    		else throwErrorAndExit("Format not supported!\n");
    		} else if(strcmp(argv[arg_cnt], "-p") == 0)
    			outInPNG = 1;
    		else if(strcmp(argv[arg_cnt], "-c") == 0)
