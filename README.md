@@ -1,6 +1,11 @@
 # ImageMetrics
 Multimedia PS
 
+## Autorun Usage
+
+```
+> python autorun.py
+```
 
 ## Image Compression
 ### Usage
