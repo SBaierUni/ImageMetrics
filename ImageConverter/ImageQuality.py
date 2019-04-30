@@ -48,7 +48,7 @@ if len(sys.argv) < 4:
 	printUsage()
 	exit()
 
-f = open('scores.txt', 'a+')
+f = open('report.txt', 'a+')
 
 metric = sys.argv[1][1:]	# first argument is metric
 img_src = cv2.imread(sys.argv[2])  # reference image

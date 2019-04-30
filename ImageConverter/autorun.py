@@ -13,8 +13,6 @@ convertedPath = "converted/"
 metrics = ("mse", "rmse", "psnr", "ergas", "rase", "sam") # prefered metrics
 convert = 1
 
-os.system("rm -f scores.txt")
-os.system("make")
 
 if len(sys.argv) > 1:
 	if sys.argv[1] == "-h":
@@ -22,7 +20,10 @@ if len(sys.argv) > 1:
 		exit()
 	if sys.argv[1] == "-nc":
 		convert = 0
+		os.system("make")
 if convert:
+	os.system("make clean")
+	os.system("make")
 	for x in range(10, 100, 30):
 		os.system("./ImageConverter -p -c " + str(x) + " " + sourcePath)
 
