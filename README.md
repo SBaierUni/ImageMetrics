@@ -54,3 +54,17 @@ Python Sewar Library
 | SAM 	  | 0 		| higher	  | very small 	| fast   |     *    |
 | MSSSIM  | 1		| smaller	  | normal		| slow   |          |
 | VIFP	  | 0.99 	| smaller	  | normal 		| slow   |          |
+
+
+
++ Mean Squared Error (MSE)
++ Root Mean Sqaured Error (RMSE)
++ Peak Signal-to-Noise Ratio (PSNR)
++ Structural Similarity Index (SSIM)
++ Universal Quality Image Index (UQI)
++ Erreur Relative Globale Adimensionnelle de Synthèse (ERGAS)
++ Spatial Correlation Coefficient (SCC)
++ Relative Average Spectral Error (RASE)
++ Spectral Angle Mapper (SAM)
++ Multi-scale Structural Similarity Index (MS-SSIM)
++ Visual Information Fidelity (VIF)
