@@ -16,8 +16,9 @@ def getRawFilename(name):
 
 sourcePath = "source/*.png"
 convertedPath = "converted/"
-metrics = ("mse", "rmse", "psnr", "ergas", "rase", "sam") # prefered metrics
-qualities = (10, 40, 70, 100)
+metrics = ("psnr", "uqi", "ssim", "ergas", "sam", "vifp") # prefered metrics
+referenceQualities = (10, 30)
+comparableQualities = (20, 40, 60, 80)
 numOfFormats = 4	# bpg, jp2, jpg, jxr
 convert = 0
 quality = 0
@@ -37,12 +38,12 @@ for arg in sys.argv:
 os.system("make")
 
 if convert:
-	for x in qualities:
+	for x in comparableQualities:
 		os.system("./ImageConverter -p -c " + str(x) + " " + sourcePath)
 if quality:
 	images = os.listdir(convertedPath)
-	diffSourceImages = len(images) / (len(qualities) * numOfFormats)
-	diffCompImages = len(qualities) * numOfFormats
+	diffSourceImages = len(images) / (len(comparableQualities) * numOfFormats)
+	diffCompImages = len(comparableQualities) * numOfFormats
 	numOfCompareOp = int(diffSourceImages * len(metrics) * diffCompImages * (diffCompImages - 1) / 2)
 	progressbar = tqdm(total=numOfCompareOp)
 	
