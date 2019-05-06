@@ -23,7 +23,7 @@ Multimedia PS
 | jpeg   | 100 			       | 0  				  |
 | jxr    | 100     			   | 0  				  |
 | jp2    | 100    		 	   | 0  				  |
-| bpg    | 0   			 	   | 51 				  |
+| bpg    | 51   		 	   | 0 				 	  |
 
 
 ## Image Quality
