@@ -64,6 +64,11 @@ if convert:
 		os.system("./ImageConverter -p -c " + str(x) + " " + sourcePath)
 
 if quality:
+
+	csv = open('scores.csv', 'w')
+	csv.write("filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score")
+	csv.close()
+
 	images = os.listdir(convertedPath)
 	images.sort()
 	diffSourceImages = len(images) / imagesPerSrc

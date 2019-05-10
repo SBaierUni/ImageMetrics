@@ -1,6 +1,7 @@
 import cv2
 import sys
 import os
+import re
 from sewar.full_ref import *
 # sewar-lib from https://github.com/andrewekhalel/sewar
 
@@ -16,7 +17,7 @@ def getMetric(metric):
 	elif metric == "uqi":
 		score = uqi(img_src, img_comp)
 	elif metric == "ssim":
-		score = ssim(img_src, img_comp)
+		score = ssim(img_src, img_comp)[0]
 	elif metric == "ergas":
 		score = ergas(img_src, img_comp)
 	elif metric == "scc":
@@ -37,6 +38,19 @@ def getMetric(metric):
 def getFilename(path):
 	return os.path.basename(path)[:-4]
 
+def getRawFilename(name):
+	m = re.match(r'.*(_\d+_([a-z]|\d){3})', name)
+	name = name[:-len(m.groups()[0])]
+	return name
+
+def getCompRatio(name):
+	m = re.match(r'.*(_([a-z]|\d){3})', name)
+	name = name[len(getRawFilename(name))+1:-len(m.groups()[0])]
+	return name
+
+def getFormat(name):
+	return name[len(name)-3:]
+
 
 def printUsage():
 	print("usage: python metrics.py [options ...] reference comparable\n"
@@ -49,6 +63,7 @@ if len(sys.argv) < 4:
 	exit()
 
 f = open('report.txt', 'a+')
+csv = open('scores.csv', 'a+')
 
 metric = sys.argv[1][1:]	# first argument is metric
 img_src = cv2.imread(sys.argv[2])  # reference image
@@ -57,8 +72,12 @@ for x in range(3, len(sys.argv)):
 	img_comp = cv2.imread(sys.argv[x],1)  # image to compare
 	sys.argv[x] = getFilename(sys.argv[x])
 	out_score = getMetric(metric)
-	out = "\n{} -> {}\n{}:\t{}".format(sys.argv[2], sys.argv[x], metric.upper(),out_score)
-	#print(out)
+	out = "\n{} -> {}\n{}:\t{}".format(sys.argv[2], sys.argv[x], metric.upper(), out_score)
 	f.write(out)
 
-	
+	# filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
+	out = "\n{},{},{},{},{},{},{}".format(sys.argv[2], getCompRatio(sys.argv[2]), getFormat(sys.argv[2]), getCompRatio(sys.argv[x]), getFormat(sys.argv[x]), metric.upper(), out_score)
+	csv.write(out)
+
+f.close()
+csv.close()

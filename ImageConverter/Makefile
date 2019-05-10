@@ -12,6 +12,7 @@ cleanImages:
 	rm -f converted/*.bpg
 	rm -f converted/*.png
 	rm -f report.txt
+	rm -f scores.csv
 
 clean: cleanImages
 	rm -f ImageConverter

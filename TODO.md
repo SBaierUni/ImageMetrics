@@ -9,3 +9,7 @@ Plot:
 + plot report.txt with 4 curves(bpg, jp2, jxr, jpg) per reference quality(10, 30)
 + y-axis metrics
 + x-axis score
+
+CSV-File-Format:
+filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
+test,10,jpg,20,bpg,psnr,30.324

@@ -6,6 +6,8 @@ Multimedia PS
 ```
 > python autorun.py
 ```
+No filenames with '_' allowed.
+
 
 ## Image Compression
 ### Usage
