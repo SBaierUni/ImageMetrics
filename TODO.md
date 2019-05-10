@@ -1,8 +1,5 @@
 # TODO
 
-AutoRun:
-+ Compare compList(20, 40, 60, 80) to referenceList(10, 30)
-
 ImageCompression:
 + Should -p delete the source files ? -> currently it does
 + Terminal output text for bpg wrong, (changed from 0->51 to 51->0) ->  who cares ?
