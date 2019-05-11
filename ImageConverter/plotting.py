@@ -5,18 +5,8 @@ import statistics
 #plt.ylabel('some numbers')
 #plt.show()
 
-def getRawFilename(name):
-	m = re.match(r'.*(_\d+_([a-z]|\d){3})', name)
-	name = name[:-len(m.groups()[0])-1]
-	return name
-
-def getCompRatio(name):
-	m = re.match(r'.*(_([a-z]|\d){3})', name)
-	name = name[len(getRawFilename(name))+1:-len(m.groups()[0])-1]
-	return name
-
-import pandas
-data = pandas.read_csv('./scores.csv')
+import pandas as pd
+data = pd.read_csv('./scores.csv')
 
 # filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
 fn = data['filename']
@@ -24,13 +14,40 @@ srcRatio = data['srccompRatio']
 met = data['metric']
 scurr = []
 
-for i in range(0,len(fn)):
-	if (fn[i] == fn[0]) & (srcRatio[i] == srcRatio[0]) & (met[i] == met[0]):
-		scurr.append(data['score'][i])
 
-x = met
-print(scurr)
-y = sum(scurr) / float(len(scurr))	# average
-plt.figure(figsize = (5, 5))
-plt.plot(x, y, 'r--', x, y**2, 'bs', x, y**3, 'g^')
+references = data.filename.drop_duplicates()	# only the filenames
+#formats = data.comformat.drop_duplicates()	# only the filenames
+#metrics = data.metric.drop_duplicates()	# only the filenames
+formats = 4
+metrics = 6
+offset = formats * metrics
+print(offset)
+
+
+
+# take all files with identical srccompRatio and srcformat
+# take all files with identical comformat, comcompRatio is ignored in the graphs
+# take all files with identical metric and take average score (should be 4 different avg. scores)
+#cs = pd.DataFrame(data)
+
+#for x in range(0, 1000):
+current_tracks = data[data.srccompRatio == data.srccompRatio[0]]
+current_tracks = current_tracks[current_tracks.srcformat == current_tracks.srcformat[0]]
+current_tracks = current_tracks[current_tracks.comformat == current_tracks.comformat[0]]
+current_tracks = current_tracks[current_tracks.metric == current_tracks.metric[0]]
+
+avg = sum(current_tracks.score) / float(len(current_tracks))	# average
+
+print(avg)
+print(current_tracks)
+
+#data = data.drop(["test_10_jp2", "test_10_jpg"])
+
+
+
+#x = met
+#print(scurr)
+#y = sum(scurr) / float(len(scurr))	# average
+#plt.figure(figsize = (5, 5))
+#plt.plot(x, y, 'r--', x, y**2, 'bs', x, y**3, 'g^')
 #plt.show()
