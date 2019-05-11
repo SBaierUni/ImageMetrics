@@ -76,7 +76,7 @@ for x in range(3, len(sys.argv)):
 	f.write(out)
 
 	# filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
-	out = "\n{},{},{},{},{},{},{}".format(sys.argv[2], getCompRatio(sys.argv[2]), getFormat(sys.argv[2]), getCompRatio(sys.argv[x]), getFormat(sys.argv[x]), metric.upper(), out_score)
+	out = "\n{},{},{},{},{},{},{}".format(getRawFilename(sys.argv[2]), getCompRatio(sys.argv[2]), getFormat(sys.argv[2]), getCompRatio(sys.argv[x]), getFormat(sys.argv[x]), metric.upper(), out_score)
 	csv.write(out)
 
 f.close()
