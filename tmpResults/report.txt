@@ -1,8 +1,0 @@
-Converted source/tt.png to format jpeg.
-Quality: 0/100		Filesize: 21896 Bytes
-Converted source/tt.png to format jpeg2000.
-Quality: 38/100		Filesize: 5713 Bytes
-Converted source/tt.png to format jxr.
-Quality: 59/100		Filesize: 5967 Bytes
-Converted source/tt.png to format bpg.
-Quality: 21/51		Filesize: 5987 Bytes
