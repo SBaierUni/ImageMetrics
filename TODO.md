@@ -6,9 +6,9 @@ ImageCompression:
 + Support decimal digits for comRate in filename ? -> nobody needs that
 
 Plot:
-+ plot report.txt with 4 curves(bpg, jp2, jxr, jpg) per reference quality(10, 30)
-+ y-axis metrics
-+ x-axis score
++ adjust scores for better visibility
++ maybe plot all scores of the different images
++ one plot per ratio + format
 
 CSV-File-Format:
 filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
