@@ -50,8 +50,8 @@ Python Sewar Library
 | RMSE_SW | 0		| higer		  | normal 		| fast   |          |
 | UQI	  |	1		| smaller	  | normal 		| normal |     *    |
 | SSIM	  | 1		| smaller	  | normal 		| slow   |     *    |
-| ERGAS	  | 0		| higher	  | very big 	| normal |     *    |
-| SCC	  |	0.98  	| smaller	  | exponential | slow   |          |
+| ERGAS	  | 0		| higher	  | very big 	| normal |          |
+| SCC	  |	0.98  	| smaller	  | exponential | slow   |     *    |
 | RASE	  | 0 		| higher	  | big 		| normal |          |
 | SAM 	  | 0 		| higher	  | very small 	| fast   |     *    |
 | MSSSIM  | 1		| smaller	  | normal		| slow   |          |

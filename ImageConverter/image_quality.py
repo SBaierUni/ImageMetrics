@@ -2,6 +2,7 @@ import cv2
 import sys
 import os
 import re
+import subprocess
 from sewar.full_ref import *
 # sewar-lib from https://github.com/andrewekhalel/sewar
 
@@ -17,7 +18,8 @@ def getMetric(metric):
 	elif metric == "uqi":
 		score = uqi(img_src, img_comp)
 	elif metric == "ssim":
-		score = ssim(img_src, img_comp)[0]
+		score = float(subprocess.check_output(['python', 'SSIM.py', '--cw', src_name, comp_name])[:-1])
+		#score = ssim(img_src, img_comp)[0] # much slower, different scores
 	elif metric == "ergas":
 		score = ergas(img_src, img_comp)
 	elif metric == "scc":
@@ -29,7 +31,8 @@ def getMetric(metric):
 	elif metric == "msssim":
 		score = msssim(img_src, img_comp)
 	elif metric == "vifp":
-		score = vifp(img_src, img_comp)
+		score = float(subprocess.check_output(['python', 'VIFP.py', src_name, comp_name]))
+		#score = vifp(img_src, img_comp) # much slower, different scores
 	else:
 		print("Metric ", metric, " is NOT supported")
 	return score
@@ -65,13 +68,17 @@ if len(sys.argv) < 4:
 f = open('report.txt', 'a+')
 csv = open('scores.csv', 'a+')
 
+src_name = sys.argv[2]
 metric = sys.argv[1][1:]	# first argument is metric
 img_src = cv2.imread(sys.argv[2])  # reference image
 sys.argv[2] = getFilename(sys.argv[2])
 for x in range(3, len(sys.argv)):
 	img_comp = cv2.imread(sys.argv[x],1)  # image to compare
+	comp_name = sys.argv[x]
 	sys.argv[x] = getFilename(sys.argv[x])
 	out_score = getMetric(metric)
+	
+	#print(out_score)
 	out = "\n{} -> {}\n{}:\t{}".format(sys.argv[2], sys.argv[x], metric.upper(), out_score)
 	f.write(out)
 

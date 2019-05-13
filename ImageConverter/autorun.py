@@ -33,7 +33,8 @@ def getReferenceFiles(im):
 
 sourcePath = "source/*.png"
 convertedPath = "converted/"
-metrics = ("psnr", "uqi", "ssim", "ergas", "sam", "vifp")
+#metrics = ("psnr", "uqi", "ssim", "scc", "sam", "vifp")
+metrics = ("psnr", "uqi", "ergas", "sam")
 referenceQualities = (10, 30)
 comparableQualities = (20, 40, 60, 80)
 numOfRefFormats = 2		# jp2, jpg
@@ -87,7 +88,7 @@ if quality:
 			del refList[0]
 			for img in comList:
 				for x in metrics:
-					os.system("python ImageQuality.py -" + x + " " + convertedPath + reference + " " + convertedPath + img)
+					os.system("python image_quality.py -" + x + " " + convertedPath + reference + " " + convertedPath + img)
 					progressbar.update()
 	
 	progressbar.close()
