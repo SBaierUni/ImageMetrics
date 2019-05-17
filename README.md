@@ -9,6 +9,14 @@ Multimedia PS
 No filenames with '_' allowed.
 
 
+## Plotting Scores
+
+```
+> python plot_scores.py
+```
+
+
+
 ## Image Compression
 ### Usage
 
@@ -35,11 +43,6 @@ Python Sewar Library
 > pip install sewar
 ```
 
-### Usage
-
-```
-> python metrics.py -metric res/reference.png res/gaben_bpg_30.png
-```
 + supported formats: png, jpg, jp2
 
 | METRIC  | BEST	| WORSE 	  | STEPSIZE	| SPEED  | PREFERED |

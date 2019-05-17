@@ -29,7 +29,7 @@ def main():
 	
 	if do_qual:
 		csv = open('scores.csv', 'w')
-		csv.write("filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score")
+		csv.write("original_filename,src_ratio,src_format,com_ratio,com_format,metric,score")
 		csv.close()
 	
 		images = os.listdir(converted_path)
@@ -56,7 +56,7 @@ def main():
 						out = "\n{} -> {}\n{}:\t{}".format(reference, comp, m.upper(), score)
 						f.write(out)
 	
-						# filename,srccompRatio,srcformat,comcompRatio,comformat,metric,score
+						# original_filename,src_ratio,src_format,com_ratio,com_format,metric,score
 						out = "\n{},{},{},{},{},{},{}".format(getRawFilename(reference), getCompRatio(reference), 
 							getFormat(reference), getCompRatio(comp), getFormat(comp), m.upper(), score)
 						csv.write(out)

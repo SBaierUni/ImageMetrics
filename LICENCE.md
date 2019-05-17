@@ -1,4 +1,4 @@
-#sewar-lib 
+# SEWAR-lib 
 from https://github.com/andrewekhalel/sewar
 
 # VIFP function

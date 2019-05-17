@@ -1,6 +1,6 @@
 
 default:
-	g++ main.cpp -o ImageConverter
+	g++ ImageConverter.cpp -o ImageConverter
 
 .PHONY:
 	cleanImages clean
