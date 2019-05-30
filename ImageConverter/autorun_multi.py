@@ -75,7 +75,7 @@ def calc_score(comp):
 	img_src = cv2.imread(converted_path + comp[0])		# reference image
 	img_comp = cv2.imread(converted_path + comp[1])		# comparable image
 
-	start = time.time()
+	#start = time.time()
 	for m in metrics:
 		score = getMetric(m, img_src, img_comp)
 		progressbar.update()
@@ -86,7 +86,7 @@ def calc_score(comp):
 		out2.append("\n{},{},{},{},{},{},{}".format(getRawFilename(comp[0]), getCompRatio(comp[0]), 
 			getFormat(comp[0]), getCompRatio(comp[1]), getFormat(comp[1]), m.upper(), score))
 
-	end = time.time()
+	#end = time.time()
 	#print(end - start)
 
 def img_comparison(metric, src_name, comp_name):
