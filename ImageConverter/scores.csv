@@ -1364,7 +1364,7 @@ aaron-burden-147836-unsplash-cropped,30,jp2,40,bpg,PSNR,37.866584207025696
 aaron-burden-147836-unsplash-cropped,30,jp2,20,jpg,SCC,0.15067573465702963
 aaron-burden-147836-unsplash-cropped,30,jp2,20,jpg,SAM,0.04571859844614682
 aaron-burden-147836-unsplash-cropped,30,jp2,20,jp2,VIFP,0.894105037015585
-aaron-burden-147836-unsplash-cropped,30,jp2,40,jp2,PSNR,50
+aaron-burden-147836-unsplash-cropped,30,jp2,40,jp2,PSNR,inf
 aaron-burden-147836-unsplash-cropped,30,jp2,40,bpg,UQI,0.9971236503070399
 aaron-burden-147836-unsplash-cropped,30,jp2,20,jxr,SCC,0.08184579929167121
 aaron-burden-147836-unsplash-cropped,30,jp2,20,jxr,SAM,0.04320567389515593
@@ -2518,7 +2518,7 @@ adam-dutton-734484-unsplash-cropped,30,jp2,20,jxr,SAM,0.0825606360815118
 adam-dutton-734484-unsplash-cropped,30,jp2,20,bpg,VIFP,0.90755822134576
 adam-dutton-734484-unsplash-cropped,30,jp2,40,bpg,PSNR,44.12953224426914
 adam-dutton-734484-unsplash-cropped,30,jp2,20,jp2,VIFP,0.91659088944724
-adam-dutton-734484-unsplash-cropped,30,jp2,40,jp2,PSNR,50
+adam-dutton-734484-unsplash-cropped,30,jp2,40,jp2,PSNR,inf
 adam-dutton-734484-unsplash-cropped,30,jp2,20,jpg,VIFP,0.9123340811531225
 adam-dutton-734484-unsplash-cropped,30,jp2,20,jxr,VIFP,0.9080810253246262
 adam-dutton-734484-unsplash-cropped,30,jp2,40,bpg,UQI,0.8310017893618645
@@ -2545,7 +2545,7 @@ adam-dutton-734484-unsplash-cropped,30,jp2,40,jp2,VIFP,0.9999999999866743
 adam-dutton-734484-unsplash-cropped,30,jp2,60,bpg,UQI,0.8326677522674243
 adam-dutton-734484-unsplash-cropped,30,jp2,40,jxr,VIFP,0.9057542832875223
 adam-dutton-734484-unsplash-cropped,30,jp2,60,jpg,PSNR,26.998158246448764
-adam-dutton-734484-unsplash-cropped,30,jp2,60,jp2,PSNR,50
+adam-dutton-734484-unsplash-cropped,30,jp2,60,jp2,PSNR,inf
 adam-dutton-734484-unsplash-cropped,30,jp2,40,jpg,VIFP,0.9088261586415668
 adam-dutton-734484-unsplash-cropped,30,jp2,60,bpg,SSIM,0.9394967618671242
 adam-dutton-734484-unsplash-cropped,30,jp2,60,jpg,UQI,0.6696777532507863
