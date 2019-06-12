@@ -4,6 +4,9 @@ import os 		# system commands
 import re 		# matching strings
 import numpy
 import scipy.ndimage	# vifp
+import threading
+import time
+import concurrent.futures	# multithreading
 from tqdm import tqdm	# progressbar
 from skimage.measure import compare_ssim	# ssim
 from sewar.full_ref import *	# some metrics
@@ -16,6 +19,19 @@ reference_qualities = (10, 30)
 comparable_qualities = (20, 40, 60, 80)
 reference_formats = ("jp2", "jpg")
 num_comp_formats = 4	# bpg, jp2, jpg, jxr
+
+
+images = os.listdir(converted_path)
+images.sort()
+img_per_src = len(comparable_qualities) * num_comp_formats + len(reference_qualities) * len(reference_formats)
+no_of_src_img = len(images) / img_per_src
+no_of_com_img = len(comparable_qualities) * num_comp_formats * len(reference_qualities) * len(reference_formats)
+no_of_com_ops = int(no_of_src_img * no_of_com_img * len(metrics))
+progressbar = tqdm(total=no_of_com_ops)
+
+# tmp remove
+out = []
+out2 = []
 
 def main():
 	do_conv, do_qual = load_arguments()
@@ -31,17 +47,10 @@ def main():
 		csv = open('scores.csv', 'w')
 		csv.write("original_filename,src_ratio,src_format,com_ratio,com_format,metric,score")
 		csv.close()
-	
-		images = os.listdir(converted_path)
-		images.sort()
-		img_per_src = len(comparable_qualities) * num_comp_formats + len(reference_qualities) * len(reference_formats)
-		no_of_src_img = len(images) / img_per_src
-		no_of_com_img = len(comparable_qualities) * num_comp_formats * len(reference_qualities) * len(reference_formats)
-		no_of_com_ops = int(no_of_src_img * no_of_com_img * len(metrics))
-		progressbar = tqdm(total=no_of_com_ops)
 
 		f = open('report.txt', 'a+')
 		csv = open('scores.csv', 'a+')
+		img_list = []
 
 		while images:
 			ref_list, com_list = getReferenceFiles(images, img_per_src)
@@ -51,24 +60,39 @@ def main():
 				del ref_list[0]
 		
 				for comp in com_list:
-					for m in metrics:
-						score = img_comparison(m, reference, comp)
-						out = "\n{} -> {}\n{}:\t{}".format(reference, comp, m.upper(), score)
-						f.write(out)
-	
-						# original_filename,src_ratio,src_format,com_ratio,com_format,metric,score
-						out = "\n{},{},{},{},{},{},{}".format(getRawFilename(reference), getCompRatio(reference), 
-							getFormat(reference), getCompRatio(comp), getFormat(comp), m.upper(), score)
-						csv.write(out)
-						progressbar.update()
+					img_list.append([reference, comp])
+			
+		with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+			executor.map(calc_score, img_list)
 
+		f.writelines(out)
+		csv.writelines(out2)
 		progressbar.close()
 		f.close()
 		csv.close()
 
+def calc_score(comp):
+	img_src = cv2.imread(converted_path + comp[0])		# reference image
+	img_comp = cv2.imread(converted_path + comp[1])		# comparable image
+
+	#start = time.time()
+	for m in metrics:
+		score = getMetric(m, img_src, img_comp)
+		progressbar.update()
+
+		out.append("\n{} -> {}\n{}:\t{}".format(comp[0], comp[1], m.upper(), score))
+		
+		#original_filename,src_ratio,src_format,com_ratio,com_format,metric,score
+		out2.append("\n{},{},{},{},{},{},{}".format(getRawFilename(comp[0]), getCompRatio(comp[0]), 
+			getFormat(comp[0]), getCompRatio(comp[1]), getFormat(comp[1]), m.upper(), score))
+
+	#end = time.time()
+	#print(end - start)
+
 def img_comparison(metric, src_name, comp_name):
 	img_src = cv2.imread(converted_path + src_name)		# reference image
 	img_comp = cv2.imread(converted_path + comp_name)	# comparable image
+
 	return getMetric(metric, img_src, img_comp)
 
 def printUsage():
