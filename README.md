@@ -1,18 +1,27 @@
 # ImageMetrics
 Multimedia PS
 
-## Autorun Usage
+## General Usage
+Put the images into a folder called "source" in the ImageConverter directory. 
+No image filenames with '_' are allowed.
+Run the automated python-script with:
 
 ```
 > python autorun.py
 ```
-No filenames with '_' allowed.
+The converted images are stored in a folder named "converted".
+The image metrics are stored in a file named "scores.csv" and the whole report in a file named "report.txt".
+After finishing you can remove all generated files with:
+
+```
+> make clean
+```
 
 
 ## Plotting Scores
 
 ```
-> python plot_scores.py
+> python plot_scores_simple.py
 ```
 
 
@@ -20,10 +29,8 @@ No filenames with '_' allowed.
 ## Image Compression
 ### Usage
 
-+ add input-image-path to imageList.txt
-
 ```
-> ./ImageConverter -a -p -c 10
+> ./ImageConverter
 ```
 
 ### Available Compression Qualities
